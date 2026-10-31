@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# IOMETE questionnaire helper
 
-## Getting Started
+Built for the IOMETE track at hackCBS 9.0 ("Make Complex Tech Easy to Buy").
 
-First, run the development server:
+**Friction removed:** a buyer's security questionnaire has 200 rows and a sales engineer has to answer every one without guessing. This tool drafts each answer from IOMETE's public documentation only, quotes the supporting sentence, links to the exact page, and marks everything the public material does not cover as **unknown** with what to ask IOMETE for. The headline number on screen is the unknown rate.
+
+**Who it helps:** the sales engineer filling the sheet, and the buyer's security reviewer who wants to check the vendor's answers against the vendor's own docs.
+
+## How it works
+
+1. **Corpus.** `scripts/build-corpus.mjs` turns the public docs source repository [iomete/iom-docs](https://github.com/iomete/iom-docs) (docs, user guide, release notes, blog, glossary) plus eight saved pages from iomete.com (FAQ, pricing, deployment, security) into about 5,000 passages. Each passage keeps the public URL and section anchor it came from. Output: `src/data/corpus.json`.
+2. **Retrieval.** `src/lib/corpus.ts` runs a BM25 search (MiniSearch) with a small security-vocabulary synonym map, keeps at most two passages per page, and hands the top eight to the model.
+3. **Answer.** `src/lib/answer.ts` asks Gemini for a JSON answer with a status and verbatim quotes. The server then checks every quote by string match against the passage text. A claim with no verified quote cannot be labelled Sourced; it is downgraded to Inferred or Unknown. Roadmap items and marketing adjectives are not accepted as evidence.
+4. **UI.** Paste questions one per line (lines starting with `#` are section labels), run, filter by status, open the passages that were searched, export Markdown or CSV for the actual questionnaire.
+
+Status key: **Sourced** = stated in the docs, quote verified. **Inferred** = reasoned from a quoted fact, reasoning shown, confirm with vendor. **Unknown** = not in public material, ask vendor. Unknown never means no.
+
+## Run locally
 
 ```bash
+cp .env.example .env.local   # add a Google AI Studio key as GEMINI_API_KEY
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Without a key the app runs in retrieval-only mode and shows the matching passages instead of drafted answers.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Rebuild the corpus from a fresh clone of the docs:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+git clone --depth 1 https://github.com/iomete/iom-docs.git /tmp/iom-docs
+node scripts/build-corpus.mjs /tmp/iom-docs [dir-with-saved-site-html]
+```
 
-## Learn More
+Refresh the cached demo run (used by the "Load cached run" button so judges do not burn API quota):
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+node scripts/run-sample.mjs http://localhost:3000
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deploy to Vercel
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Push this folder to a GitHub repository.
+2. Import it in Vercel. Framework preset: Next.js. No build settings to change.
+3. Add environment variables `GEMINI_API_KEY` and `GEMINI_MODEL` (default `gemini-flash-lite-latest`).
+4. Deploy. The answer route sets `maxDuration = 60`, which the Hobby plan allows.
 
-## Deploy on Vercel
+## Honest limits
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- It only knows public pages. Gated material such as the SOC 2 report in IOMETE's trust center is out of scope, so those rows come back unknown on purpose.
+- Sourced means IOMETE's public documentation says it, not that an auditor confirmed it.
+- Drafts need a human before they go to a customer.
+- Not affiliated with IOMETE.

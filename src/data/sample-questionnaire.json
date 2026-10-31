@@ -1,0 +1,66 @@
+{
+  "name": "Sample vendor security questionnaire (42 questions)",
+  "note": "Original questions modeled on the control domains of common questionnaires such as CSA CAIQ-Lite and SIG Lite. Replace with your own list: one question per line.",
+  "sections": [
+    { "domain": "Deployment & tenancy", "questions": [
+      "Where does the software run: in the vendor's cloud, or inside the customer's own infrastructure?",
+      "Can the platform be deployed in a fully air-gapped environment with no internet connectivity?",
+      "Does the vendor have standing access to customer data or encryption keys during normal operation?",
+      "Does the software send telemetry or usage data back to the vendor?",
+      "Can we choose the region or data center where data is stored and processed?",
+      "Is the platform single-tenant for our organization, and how are teams or business units isolated from each other?"
+    ]},
+    { "domain": "Identity & access", "questions": [
+      "Does the platform support single sign-on via SAML 2.0 or OpenID Connect?",
+      "Can users and groups be synchronized from LDAP or Active Directory?",
+      "Is multi-factor authentication enforced for console access?",
+      "Does the platform provide role-based access control with least-privilege roles?",
+      "Can access be restricted at the table, row, and column level?",
+      "Do API tokens expire, and can an administrator revoke them?"
+    ]},
+    { "domain": "Data protection", "questions": [
+      "Is data encrypted at rest, and which encryption options are supported?",
+      "Is data encrypted in transit between clients, compute, and storage?",
+      "Can we use our own key management system or HSM for encryption keys?",
+      "Can sensitive fields such as PII or PHI be masked dynamically at query time?",
+      "Can data be classified or tagged so that masking policies apply automatically?",
+      "How is data deleted or purged when it is no longer needed, including historical snapshots?",
+      "Can a specific record be erased to satisfy a GDPR right-to-erasure request?"
+    ]},
+    { "domain": "Logging & audit", "questions": [
+      "Are user actions and queries recorded in an audit log?",
+      "Can audit logs be exported to our SIEM?",
+      "Are audit logs protected from modification by platform administrators?",
+      "Is platform health and resource usage observable through standard monitoring tools?"
+    ]},
+    { "domain": "Network security", "questions": [
+      "Can network traffic between platform components be restricted with Kubernetes network policies?",
+      "Is inbound access to the platform terminated with TLS using customer-provided certificates?",
+      "Which outbound network connections does the platform require?"
+    ]},
+    { "domain": "Resilience & recovery", "questions": [
+      "What backup and recovery capabilities exist for data tables?",
+      "Can accidentally deleted or corrupted data be restored to a previous point in time?",
+      "Does the platform support multi-region or multi-site disaster recovery?",
+      "What recovery time and recovery point objectives does the vendor commit to?"
+    ]},
+    { "domain": "Compliance & assurance", "questions": [
+      "Does the vendor hold a SOC 2 Type II report, and how can we obtain it?",
+      "Is the vendor ISO 27001 certified?",
+      "Is the platform suitable for workloads subject to HIPAA?",
+      "How does the platform help with DORA and other EU financial-sector requirements?",
+      "How often does the vendor commission independent penetration tests, and can we see the summary?",
+      "Does the vendor run a bug bounty or vulnerability disclosure program?"
+    ]},
+    { "domain": "Vulnerability & change management", "questions": [
+      "How frequently are platform releases and security patches published?",
+      "How are vulnerabilities in third-party dependencies tracked and remediated?",
+      "Is a software bill of materials available for the platform images?",
+      "How are secrets such as database passwords and cloud credentials stored by the platform?"
+    ]},
+    { "domain": "Incident response & support", "questions": [
+      "Within what time frame does the vendor notify customers of a security incident?",
+      "What support response times are offered for critical issues?"
+    ]}
+  ]
+}
