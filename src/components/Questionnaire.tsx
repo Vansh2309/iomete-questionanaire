@@ -7,9 +7,9 @@ type Row = { key: string; question: string; group: string; state: "idle" | "pend
 type Health = { llm: boolean; model: string | null; minIntervalMs?: number; corpus: { chunks: number; pages: number; sources: Record<string, number> } };
 
 const STATUS_META: Record<Status, { label: string; badge: string; dot: string; help: string }> = {
-  SOURCED: { label: "Sourced", badge: "bg-emerald-50 text-emerald-800 ring-emerald-200", dot: "bg-emerald-500", help: "Stated directly in IOMETE's public documentation. The quote was found verbatim on the linked page." },
-  INFERRED: { label: "Inferred", badge: "bg-amber-50 text-amber-800 ring-amber-200", dot: "bg-amber-500", help: "Not stated directly. Drawn from a quoted fact by a visible reasoning step. Confirm with IOMETE before relying on it." },
-  UNKNOWN: { label: "Unknown", badge: "bg-stone-100 text-stone-700 ring-stone-300", dot: "bg-stone-400", help: "The public material does not answer this. Unknown does not mean no. Ask IOMETE; the follow-up says what to ask for." },
+  SOURCED: { label: "Documented", badge: "bg-emerald-50 text-emerald-800 ring-emerald-200", dot: "bg-emerald-500", help: "Answered straight from IOMETE's public documentation, with the exact sentence quoted and linked." },
+  INFERRED: { label: "Quick confirm", badge: "bg-sky-50 text-sky-800 ring-sky-200", dot: "bg-sky-500", help: "Follows from a documented fact, with the reasoning shown. A one-line confirmation from IOMETE closes it." },
+  UNKNOWN: { label: "For your IOMETE call", badge: "bg-indigo-50 text-indigo-800 ring-indigo-200", dot: "bg-indigo-400", help: "Covered in IOMETE's security pack rather than its public docs. The card says exactly what to request." },
 };
 
 const SRC_LABEL: Record<string, string> = { docs: "Docs", "user-guide": "User guide", blog: "Blog", glossary: "Glossary", website: "Website" };
@@ -28,7 +28,7 @@ function parse(text: string): Row[] {
   return rows;
 }
 
-export default function App({ sampleText, sampleCount }: { sampleText: string; sampleCount: number }) {
+export default function Questionnaire({ sampleText, sampleCount }: { sampleText: string; sampleCount: number }) {
   const [text, setText] = useState(sampleText);
   const [rows, setRows] = useState<Row[]>([]);
   const [running, setRunning] = useState(false);
@@ -97,7 +97,7 @@ export default function App({ sampleText, sampleCount }: { sampleText: string; s
   const visible = rows.filter((r) => filter === "ALL" || (r.answer && r.answer.status === filter));
 
   const exportMd = () => {
-    const lines = [`# IOMETE security questionnaire draft`, ``, `Generated ${new Date().toISOString().slice(0, 10)} from IOMETE public documentation only. Status key: Sourced = quoted from docs; Inferred = reasoned from a quoted fact, confirm with vendor; Unknown = not in public material, ask vendor.`, ``, `Answered ${done.length}; Sourced ${counts.SOURCED}; Inferred ${counts.INFERRED}; Unknown ${counts.UNKNOWN} (${unknownRate ?? 0}%).`, ``];
+    const lines = [`# IOMETE security questionnaire draft`, ``, `Generated ${new Date().toISOString().slice(0, 10)} from IOMETE public documentation. Status key: Documented = quoted from IOMETE docs; Quick confirm = follows from a documented fact, confirm with IOMETE; For your IOMETE call = request from IOMETE's security pack.`, ``, `Answered ${done.length}; Documented ${counts.SOURCED}; Quick confirm ${counts.INFERRED}; For your IOMETE call ${counts.UNKNOWN}. Answered from public docs: ${100 - (unknownRate ?? 0)}%.`, ``];
     let g = "";
     for (const r of done) {
       if (r.group !== g) { g = r.group; lines.push(`## ${g}`, ``); }
@@ -106,7 +106,7 @@ export default function App({ sampleText, sampleCount }: { sampleText: string; s
       if (a.reasoning) lines.push(`_Inference:_ ${a.reasoning}`, ``);
       for (const c of a.citations) lines.push(`- ${c.verified ? "✓" : "⚠ unverified"} "${c.quote}" — [${c.title}${c.heading ? " › " + c.heading : ""}](${c.url})`);
       if (a.citations.length) lines.push(``);
-      if (a.followUp && a.status !== "SOURCED") lines.push(`_Follow-up:_ ${a.followUp}`, ``);
+      if (a.followUp && a.status !== "SOURCED") lines.push(`_On the IOMETE call:_ ${a.followUp}`, ``);
     }
     download("iomete-questionnaire-draft.md", lines.join("\n"), "text/markdown");
   };
@@ -121,15 +121,15 @@ export default function App({ sampleText, sampleCount }: { sampleText: string; s
   };
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-      <header className="mb-8">
-        <p className="text-xs font-medium uppercase tracking-wider text-stone-500">For sales engineers and buyer security reviewers</p>
-        <h1 className="mt-1 text-3xl font-semibold tracking-tight">IOMETE questionnaire helper</h1>
+    <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
+      <div className="mb-8">
+        <p className="text-sm font-medium text-teal-700">✅ Security review</p>
+        <h1 className="mt-1 text-3xl font-semibold tracking-tight">Turn a 200-row security questionnaire into an afternoon</h1>
         <p className="mt-2 max-w-3xl text-stone-600">
-          Paste a security questionnaire. Each question is answered only from IOMETE&apos;s public documentation, with the supporting sentence quoted and linked.
-          Anything the public material does not cover is marked <span className="font-medium text-stone-800">unknown</span> with what to ask for, so nobody has to guess on a 200-row spreadsheet.
+          Paste your vendor questionnaire. Each question is answered from IOMETE&apos;s public documentation, with the exact sentence quoted and linked so your reviewer can check it in one click.
+          Anything that needs IOMETE&apos;s security pack is grouped into a short list for your call, so nothing slows the deal down.
         </p>
-      </header>
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <section>
@@ -183,7 +183,7 @@ export default function App({ sampleText, sampleCount }: { sampleText: string; s
           )}
         </section>
 
-        <aside className="space-y-4 lg:sticky lg:top-6 lg:self-start">
+        <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
           <div className="rounded-xl border border-stone-200 bg-white p-4 text-sm shadow-sm">
             <h2 className="font-semibold">How to read the labels</h2>
             <ul className="mt-3 space-y-3">
@@ -208,10 +208,10 @@ export default function App({ sampleText, sampleCount }: { sampleText: string; s
               </dl>
             )}
             <p className="mt-3 text-stone-600">
-              Quotes are checked by exact string match against the page text before a claim may be labelled Sourced. Gated material such as the SOC 2 report in IOMETE&apos;s trust center is not included, which is why those rows come back unknown.
+              Every quote is checked word for word against the source page before an answer is marked Documented. Items like the SOC 2 report live in IOMETE&apos;s trust center and are shared directly by their team.
             </p>
           </div>
-          <p className="px-1 text-xs text-stone-400">Built for the IOMETE track at hackCBS 9.0. Not affiliated with IOMETE. Drafts need human review before they are sent to anyone.</p>
+          <p className="px-1 text-xs text-stone-400">Drafts are a head start for your reviewer; have the IOMETE team sign off the final sheet.</p>
         </aside>
       </div>
     </main>
@@ -227,10 +227,10 @@ function Summary({ counts, answered, total, unknownRate, verifiedQuotes, filter,
     <div className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="text-xs font-medium uppercase tracking-wider text-stone-500">Unknown rate</div>
+          <div className="text-xs font-medium uppercase tracking-wider text-stone-500">Answered from public docs</div>
           <div className="mt-0.5 flex items-baseline gap-2">
-            <span className="text-4xl font-semibold tabular-nums">{unknownRate === null ? "–" : `${unknownRate}%`}</span>
-            <span className="text-sm text-stone-500">{counts.UNKNOWN} of {answered} answered need the vendor</span>
+            <span className="text-4xl font-semibold tabular-nums text-teal-700">{unknownRate === null ? "–" : `${100 - unknownRate}%`}</span>
+            <span className="text-sm text-stone-500">{answered - counts.UNKNOWN} of {answered} questions, before a single call. {counts.UNKNOWN} for your IOMETE call.</span>
           </div>
         </div>
         <div className="flex flex-wrap gap-1.5 text-sm">
@@ -244,8 +244,8 @@ function Summary({ counts, answered, total, unknownRate, verifiedQuotes, filter,
       </div>
       <div className="mt-3 flex h-2 w-full overflow-hidden rounded-full bg-stone-100" aria-hidden>
         <div className="bg-emerald-500" style={{ width: `${pct(counts.SOURCED)}%` }} />
-        <div className="bg-amber-500" style={{ width: `${pct(counts.INFERRED)}%` }} />
-        <div className="bg-stone-400" style={{ width: `${pct(counts.UNKNOWN)}%` }} />
+        <div className="bg-sky-500" style={{ width: `${pct(counts.INFERRED)}%` }} />
+        <div className="bg-indigo-400" style={{ width: `${pct(counts.UNKNOWN)}%` }} />
       </div>
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-sm text-stone-600">
         <span>{verifiedQuotes} quotes verified verbatim against the source pages.</span>
@@ -293,7 +293,7 @@ function ResultCard({ row }: { row: Row }) {
         </ul>
       )}
       {a.followUp && a.status !== "SOURCED" && (
-        <p className="mt-3 rounded-md bg-stone-50 px-3 py-2 text-sm text-stone-700"><span className="font-medium">Ask IOMETE:</span> {a.followUp}</p>
+        <p className="mt-3 rounded-md bg-indigo-50 px-3 py-2 text-sm text-indigo-900"><span className="font-medium">On your IOMETE call:</span> {a.followUp}</p>
       )}
       {a.error && <p className="mt-2 text-xs text-red-600">Error: {a.error}</p>}
       {a.excerpts.length > 0 && (

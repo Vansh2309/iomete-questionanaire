@@ -6,3 +6,12 @@
 }
 
 html { font-family: var(--font-sans); }
+
+/* "Save as PDF" on the playground prints only the brief. */
+@media print {
+  body:has(#brief) * { visibility: hidden; }
+  #brief, #brief * { visibility: visible; }
+  #brief { position: absolute; inset: 0 auto auto 0; width: 100%; background: white !important; color: black !important; box-shadow: none; }
+  #brief a, #brief button { display: none; }
+  #brief pre { max-height: none; overflow: visible; background: white; color: black; }
+}
