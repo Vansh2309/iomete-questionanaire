@@ -19,11 +19,10 @@ export interface Column { key: string; label: string; sensitive?: boolean }
 
 export interface Persona {
   id: PersonaId;
-  emoji: string;
   name: string;
   tagline: string;
   /** Pain points phrased the way this buyer would say them. */
-  frictions: { emoji: string; text: string }[];
+  frictions: { text: string }[];
   facts: Fact[];
   table: string;
   rowNoun: string;
@@ -157,13 +156,12 @@ const pick = <T,>(r: () => number, a: T[]) => a[Math.floor(r() * a.length)];
 export const PERSONAS: Persona[] = [
   {
     id: "hospital",
-    emoji: "🏥",
     name: "Hospital or healthcare",
     tagline: "Better care decisions, with patient data that never leaves your walls.",
     frictions: [
-      { emoji: "🔒", text: "Patient records can't go to someone else's cloud, so good analytics tools are off the table." },
-      { emoji: "🧩", text: "Admissions, billing and lab data live in separate systems nobody can query together." },
-      { emoji: "👀", text: "Billing staff need numbers, not diagnoses, and enforcing that by hand is slow." },
+      { text: "Patient records can't go to someone else's cloud, so good analytics tools are off the table." },
+      { text: "Admissions, billing and lab data live in separate systems nobody can query together." },
+      { text: "Billing staff need numbers, not diagnoses, and enforcing that by hand is slow." },
     ],
     facts: [PATIENT, F.masking, F.compliance, F.undo],
     table: "patients",
@@ -185,13 +183,12 @@ export const PERSONAS: Persona[] = [
   },
   {
     id: "bank",
-    emoji: "🏦",
     name: "Bank or insurance",
     tagline: "Catch fraud faster and pass audits, on infrastructure you control.",
     frictions: [
-      { emoji: "📜", text: "Regulators want proof you control your data, not just a vendor's promise." },
-      { emoji: "💸", text: "Cloud data bills keep climbing as more teams run reports." },
-      { emoji: "🕵️", text: "Fraud teams need card data while marketing must never see it." },
+      { text: "Regulators want proof you control your data, not just a vendor's promise." },
+      { text: "Cloud data bills keep climbing as more teams run reports." },
+      { text: "Fraud teams need card data while marketing must never see it." },
     ],
     facts: [INSURERS, F.regulated, F.savings, F.access],
     table: "transactions",
@@ -214,13 +211,12 @@ export const PERSONAS: Persona[] = [
   },
   {
     id: "government",
-    emoji: "🏛️",
     name: "Government or public sector",
     tagline: "Serve citizens better while their data stays under national law.",
     frictions: [
-      { emoji: "🌐", text: "Citizen data can't sit with a foreign cloud provider, so modern analytics feels out of reach." },
-      { emoji: "📡", text: "Some networks are air-gapped and most tools assume an internet connection." },
-      { emoji: "🗂️", text: "Departments can't share data safely, so requests take weeks." },
+      { text: "Citizen data can't sit with a foreign cloud provider, so modern analytics feels out of reach." },
+      { text: "Some networks are air-gapped and most tools assume an internet connection." },
+      { text: "Departments can't share data safely, so requests take weeks." },
     ],
     facts: [CITIZEN, F.airgap, F.regulated, F.minutes],
     table: "services",
@@ -243,13 +239,12 @@ export const PERSONAS: Persona[] = [
   },
   {
     id: "retail",
-    emoji: "🛍️",
     name: "Retail or e-commerce",
     tagline: "Know what's selling right now and keep shelves stocked.",
     frictions: [
-      { emoji: "⏱️", text: "Sales reports arrive a day late, after the stockout already happened." },
-      { emoji: "📈", text: "Every festive season the data bill spikes with traffic." },
-      { emoji: "🙈", text: "Customer contact details leak into every spreadsheet." },
+      { text: "Sales reports arrive a day late, after the stockout already happened." },
+      { text: "Every festive season the data bill spikes with traffic." },
+      { text: "Customer contact details leak into every spreadsheet." },
     ],
     facts: [RETAIL, F.realtime, F.savings, F.powerbi],
     table: "orders",
@@ -272,13 +267,12 @@ export const PERSONAS: Persona[] = [
   },
   {
     id: "telecom",
-    emoji: "📶",
     name: "Telecom",
     tagline: "Billions of records, fast answers, predictable costs.",
     frictions: [
-      { emoji: "🐢", text: "Network reports over billions of records take hours to run." },
-      { emoji: "💰", text: "Data platform costs grow faster than subscribers." },
-      { emoji: "📇", text: "Subscriber details must stay protected under telecom rules." },
+      { text: "Network reports over billions of records take hours to run." },
+      { text: "Data platform costs grow faster than subscribers." },
+      { text: "Subscriber details must stay protected under telecom rules." },
     ],
     facts: [TELCO, F.perimeter, F.savings, F.masking],
     table: "network",
@@ -301,13 +295,12 @@ export const PERSONAS: Persona[] = [
   },
   {
     id: "other",
-    emoji: "🏢",
     name: "Any other organisation",
     tagline: "One place for all your data, inside your own infrastructure.",
     frictions: [
-      { emoji: "🧩", text: "Data is scattered across tools and nobody trusts the numbers." },
-      { emoji: "💸", text: "Cloud data platforms get expensive as you grow." },
-      { emoji: "🔐", text: "Security reviews stall every new data project." },
+      { text: "Data is scattered across tools and nobody trusts the numbers." },
+      { text: "Cloud data platforms get expensive as you grow." },
+      { text: "Security reviews stall every new data project." },
     ],
     facts: [F.perimeter, F.savings, F.access, F.powerbi],
     table: "sales",
@@ -356,17 +349,17 @@ export const FREE_TIER: Fact = {
 };
 
 /** Where-it-runs mission: one documented fact per deployment choice. */
-export const DEPLOY_CHOICES: { id: string; emoji: string; label: string; detail: string; fact: Fact }[] = [
+export const DEPLOY_CHOICES: { id: string; label: string; detail: string; fact: Fact }[] = [
   {
-    id: "onprem", emoji: "🏢", label: "Our own servers", detail: "On-premises, in your data center",
+    id: "onprem", label: "Our own servers", detail: "On-premises, in your data center",
     fact: { headline: "Fits the servers you already own", quote: "Works with any Kubernetes distribution", url: "https://iomete.com/product/deployment#deploy-on-your-own-kubernetes-clusters-in-your-data-centers", source: "IOMETE deployment" },
   },
   {
-    id: "cloud", emoji: "☁️", label: "Our own cloud account", detail: "AWS, Azure or Google Cloud, billed to you",
+    id: "cloud", label: "Our own cloud account", detail: "AWS, Azure or Google Cloud, billed to you",
     fact: { headline: "Keep your cloud discounts", quote: "You can apply existing cloud discounts, reserved instances, and committed use contracts.", url: "https://iomete.com/resources/blog/why-2026-enterprises-move-saas-to-selfhosted-lakehouses#the-cost-argument-just-flipped", source: "IOMETE blog" },
   },
   {
-    id: "airgap", emoji: "📡", label: "Fully offline", detail: "Air-gapped, zero internet",
+    id: "airgap", label: "Fully offline", detail: "Air-gapped, zero internet",
     fact: {
       headline: "Runs even with zero internet",
       quote: "Government agencies and defense contractors use IOMETE for classified workloads because it can run in secure, air-gapped, or government-cloud environments.",

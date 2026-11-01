@@ -18,11 +18,11 @@ type Result = { kind: "rows"; columns: string[]; rows: Row[] } | { kind: "write"
 type Db = { exec: (sql: string) => unknown; tables: Record<string, { data: Row[] }> };
 
 const MISSIONS = [
-  { key: "explore", emoji: "👋", title: "Meet your data", doc: MISSION_DOCS.explore },
-  { key: "question", emoji: "📊", title: "Ask a business question", doc: MISSION_DOCS.question },
-  { key: "mask", emoji: "🙈", title: "Hide sensitive data", doc: MISSION_DOCS.mask },
-  { key: "undo", emoji: "⏪", title: "Undo a mistake", doc: MISSION_DOCS.undo },
-  { key: "deploy", emoji: "📍", title: "Choose where it runs", doc: MISSION_DOCS.deploy },
+  { key: "explore", title: "Meet your data", doc: MISSION_DOCS.explore },
+  { key: "question", title: "Ask a business question", doc: MISSION_DOCS.question },
+  { key: "mask", title: "Hide sensitive data", doc: MISSION_DOCS.mask },
+  { key: "undo", title: "Undo a mistake", doc: MISSION_DOCS.undo },
+  { key: "deploy", title: "Choose where it runs", doc: MISSION_DOCS.deploy },
 ] as const;
 type MissionKey = (typeof MISSIONS)[number]["key"];
 
@@ -193,33 +193,33 @@ export default function Playground() {
       {/* header + persona switch */}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-sm font-medium text-teal-700">{p.emoji} Playground · {p.name}</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight">Try IOMETE in five quick missions</h1>
+          <p className="text-sm font-medium text-emerald-700">Playground · {p.name}</p>
+          <h1 className="mt-1 font-display text-3xl tracking-tight sm:text-4xl">Try IOMETE in five quick missions</h1>
           <p className="mt-1 max-w-2xl text-stone-600">This is a safe practice copy with made-up {p.rowNoun} data. Nothing you do here can break anything, so click freely.</p>
         </div>
         <label className="text-sm text-stone-600">
           Industry{" "}
           <select value={pid} onChange={(e) => { const id = e.target.value as PersonaId; savePersona(id); router.replace(`/playground?for=${id}`, { scroll: false }); }}
-            className="ml-1 rounded-full border border-stone-300 bg-white px-3 py-1.5 text-sm">
-            {PERSONAS.map((x) => <option key={x.id} value={x.id}>{x.emoji} {x.name}</option>)}
+            className="ml-1 rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm">
+            {PERSONAS.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
           </select>
         </label>
       </div>
 
       {/* progress */}
-      <div className="mt-6 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-stone-200">
+      <div className="mt-6 rounded-lg bg-white p-4 border border-stone-200">
         <div className="flex items-center justify-between text-sm">
-          <span className="font-medium">{doneCount === 5 ? "All missions complete 🎉" : `${doneCount} of 5 missions complete`}</span>
+          <span className="font-medium">{doneCount === 5 ? "All five missions complete" : `${doneCount} of 5 missions complete`}</span>
           <span className="text-stone-500">about a minute each</span>
         </div>
-        <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-stone-100">
-          <div className="h-full rounded-full bg-gradient-to-r from-teal-500 to-indigo-500 transition-all duration-500" style={{ width: `${doneCount * 20}%` }} />
+        <div className="mt-2 h-2.5 overflow-hidden rounded-md bg-stone-100">
+          <div className="h-full rounded-md bg-emerald-700 transition-all duration-500" style={{ width: `${doneCount * 20}%` }} />
         </div>
         <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
           {MISSIONS.map((m, i) => (
             <button key={m.key} type="button" onClick={() => setActive(m.key)}
-              className={`flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-sm ring-1 transition ${active === m.key ? "bg-stone-900 text-white ring-stone-900" : done[m.key] ? "bg-teal-50 text-teal-800 ring-teal-200" : "bg-white text-stone-700 ring-stone-300 hover:bg-stone-50"}`}>
-              <span>{done[m.key] ? "✅" : m.emoji}</span><span>{i + 1}. {m.title}</span>
+              className={`flex shrink-0 items-center gap-2 rounded-md px-3 py-1.5 text-sm ring-1 transition ${active === m.key ? "bg-stone-900 text-white ring-stone-900" : done[m.key] ? "bg-emerald-50 text-emerald-800 ring-emerald-200" : "bg-white text-stone-700 ring-stone-300 hover:bg-stone-50"}`}>
+              <span className={`grid h-5 w-5 place-items-center rounded-sm text-[11px] font-semibold ${active === m.key ? "bg-white text-stone-900" : done[m.key] ? "bg-emerald-700 text-white" : "bg-stone-100 text-stone-600"}`}>{done[m.key] ? "✓" : i + 1}</span><span>{m.title}</span>
             </button>
           ))}
         </div>
@@ -238,22 +238,22 @@ export default function Playground() {
         <section className="min-w-0 space-y-4">
           {active !== "deploy" ? (
             <>
-              <div className="rounded-2xl bg-stone-900 p-4 shadow-sm">
+              <div className="rounded-lg bg-stone-900 p-4 shadow-sm">
                 <div className="mb-2 flex items-center justify-between text-xs text-stone-400">
-                  <span>SQL editor · table <span className="font-mono text-teal-300">{p.table}</span> · {rowCount} rows</span>
+                  <span>SQL editor · table <span className="font-mono text-emerald-300">{p.table}</span> · {rowCount} rows</span>
                   <span className="hidden sm:inline">Ctrl + Enter to run</span>
                 </div>
                 <textarea value={sql} onChange={(e) => setSql(e.target.value)} spellCheck={false} rows={3}
                   onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } }}
-                  className="w-full resize-y rounded-lg bg-stone-800 p-3 font-mono text-[13px] leading-5 text-teal-100 outline-none ring-1 ring-stone-700 focus:ring-teal-500" />
+                  className="w-full resize-y rounded-lg bg-stone-800 p-3 font-mono text-[13px] leading-5 text-emerald-100 outline-none ring-1 ring-stone-700 focus:ring-emerald-500" />
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <button type="button" onClick={() => run()} disabled={!ready}
-                    className="rounded-full bg-teal-500 px-5 py-2 text-sm font-semibold text-stone-950 hover:bg-teal-400 disabled:opacity-40">▶ Run</button>
+                    className="rounded-md bg-emerald-500 px-5 py-2 text-sm font-semibold text-stone-950 hover:bg-emerald-400 disabled:opacity-40">Run query</button>
                   <span className="text-xs text-stone-400">Viewing as</span>
                   {(["full", "restricted"] as const).map((r) => (
                     <button key={r} type="button" onClick={() => switchRole(r)}
-                      className={`rounded-full px-3 py-1 text-xs ring-1 ${role === r ? "bg-white text-stone-900 ring-white" : "text-stone-300 ring-stone-600 hover:bg-stone-800"}`}>
-                      {r === "full" ? `🩺 ${p.roles.full}` : `🔒 ${p.roles.restricted}`}
+                      className={`rounded-md px-3 py-1 text-xs ring-1 ${role === r ? "bg-white text-stone-900 ring-white" : "text-stone-300 ring-stone-600 hover:bg-stone-800"}`}>
+                      {r === "full" ? p.roles.full : p.roles.restricted}
                     </button>
                   ))}
                 </div>
@@ -270,17 +270,17 @@ export default function Playground() {
       </div>
 
       {allDone && (
-        <section id="brief" ref={briefRef} className="mt-10 scroll-mt-20 rounded-3xl bg-gradient-to-br from-teal-600 to-indigo-700 p-6 text-white shadow-xl sm:p-10">
-          <p className="text-sm font-medium text-white/80">🎉 You did it in five minutes</p>
-          <h2 className="mt-1 text-3xl font-semibold tracking-tight">Here&apos;s your one-page brief for the boss</h2>
+        <section id="brief" ref={briefRef} className="mt-10 scroll-mt-20 rounded-lg bg-stone-900 p-6 text-white shadow-xl sm:p-10">
+          <p className="text-sm font-medium text-white/70">Done in five minutes</p>
+          <h2 className="mt-1 font-display text-3xl tracking-tight">Your one-page brief for the boss</h2>
           <p className="mt-2 max-w-2xl text-white/80">Copy it into an email or save it as a PDF. Every claim links back to IOMETE&apos;s own pages.</p>
-          <pre className="mt-6 max-h-96 overflow-auto whitespace-pre-wrap rounded-2xl bg-white/10 p-5 font-sans text-sm leading-relaxed ring-1 ring-white/20">{briefText}</pre>
+          <pre className="mt-6 max-h-96 overflow-auto whitespace-pre-wrap rounded-lg bg-white/10 p-5 font-sans text-sm leading-relaxed ring-1 ring-white/20">{briefText}</pre>
           <div className="mt-6 flex flex-wrap gap-3">
-            <button type="button" onClick={copyBrief} className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-stone-900 hover:bg-teal-50">{copied ? "Copied ✓" : "Copy the brief"}</button>
-            <button type="button" onClick={() => window.print()} className="rounded-full bg-white/10 px-5 py-2.5 text-sm font-medium ring-1 ring-white/40 hover:bg-white/20">Save as PDF</button>
-            <a href={FREE_TIER.url} target="_blank" rel="noreferrer" className="rounded-full bg-white/10 px-5 py-2.5 text-sm font-medium ring-1 ring-white/40 hover:bg-white/20">Start free ↗</a>
-            <a href={LINKS.contact} target="_blank" rel="noreferrer" className="rounded-full bg-white/10 px-5 py-2.5 text-sm font-medium ring-1 ring-white/40 hover:bg-white/20">Book a call with IOMETE ↗</a>
-            <Link href={`/ask?for=${p.id}`} className="rounded-full bg-white/10 px-5 py-2.5 text-sm font-medium ring-1 ring-white/40 hover:bg-white/20">Ask a follow-up question</Link>
+            <button type="button" onClick={copyBrief} className="rounded-md bg-white px-5 py-2.5 text-sm font-semibold text-stone-900 hover:bg-emerald-50">{copied ? "Copied" : "Copy the brief"}</button>
+            <button type="button" onClick={() => window.print()} className="rounded-md bg-white/10 px-5 py-2.5 text-sm font-medium ring-1 ring-white/40 hover:bg-white/20">Save as PDF</button>
+            <a href={FREE_TIER.url} target="_blank" rel="noreferrer" className="rounded-md bg-white/10 px-5 py-2.5 text-sm font-medium ring-1 ring-white/40 hover:bg-white/20">Start free</a>
+            <a href={LINKS.contact} target="_blank" rel="noreferrer" className="rounded-md bg-white/10 px-5 py-2.5 text-sm font-medium ring-1 ring-white/40 hover:bg-white/20">Book a call with IOMETE</a>
+            <Link href={`/ask?for=${p.id}`} className="rounded-md bg-white/10 px-5 py-2.5 text-sm font-medium ring-1 ring-white/40 hover:bg-white/20">Ask a follow-up question</Link>
           </div>
         </section>
       )}
@@ -296,9 +296,9 @@ function MissionPanel({ p, active, done, deploy, deleted, recovered, role, onFil
   const idx = MISSIONS.findIndex((x) => x.key === active);
   const sens = p.columns.filter((c) => c.sensitive).map((c) => c.label.toLowerCase()).join(" and ");
   return (
-    <aside className="h-fit rounded-2xl bg-white p-5 shadow-sm ring-1 ring-stone-200 lg:sticky lg:top-20">
+    <aside className="h-fit rounded-lg bg-white p-5 border border-stone-200 lg:sticky lg:top-20">
       <div className="text-xs font-semibold uppercase tracking-wider text-stone-400">Mission {idx + 1} of 5</div>
-      <h2 className="mt-1 flex items-center gap-2 text-xl font-semibold"><span className="text-2xl">{m.emoji}</span>{m.title}</h2>
+      <h2 className="mt-1 text-xl font-semibold">{m.title}</h2>
 
       <div className="mt-3 space-y-3 text-sm leading-relaxed text-stone-700">
         {active === "explore" && (<>
@@ -315,25 +315,24 @@ function MissionPanel({ p, active, done, deploy, deleted, recovered, role, onFil
           <p>Not everyone should see everything. The <b>{p.roles.restricted}</b> shouldn&apos;t see {sens}. {p.roles.why}</p>
           <p>Switch who you are and watch those columns hide themselves. Nobody had to copy or clean the data.</p>
           <div className="flex flex-wrap gap-2">
-            <Btn onClick={() => onRole("restricted")} variant={role === "restricted" ? "solid" : "ghost"}>🔒 View as {p.roles.restricted}</Btn>
-            <Btn onClick={() => onRole("full")} variant={role === "full" ? "solid" : "ghost"}>🩺 Back to {p.roles.full}</Btn>
+            <Btn onClick={() => onRole("restricted")} variant={role === "restricted" ? "solid" : "ghost"}>View as {p.roles.restricted}</Btn>
+            <Btn onClick={() => onRole("full")} variant={role === "full" ? "solid" : "ghost"}>Back to {p.roles.full}</Btn>
           </div>
           <Hint>In IOMETE this rule runs inside the query engine, so every tool and every dashboard gets the masked version automatically.</Hint>
         </>)}
         {active === "undo" && (<>
           <p>Everyone makes mistakes. Let&apos;s make a big one on purpose: <b>{p.deleteLabel.toLowerCase()}</b>.</p>
-          <Btn onClick={() => onFill(p.deleteSql, true)} variant="danger">😬 Make the mistake</Btn>
+          <Btn onClick={() => onFill(p.deleteSql, true)} variant="danger">Make the mistake</Btn>
           {deleted > 0 && <p className="rounded-lg bg-rose-50 p-2 text-rose-800">Oops: {deleted} records are gone. Now open <b>Table history</b> on the right and restore <b>version 1</b>.</p>}
-          {recovered > 0 && <p className="rounded-lg bg-teal-50 p-2 text-teal-800">Phew. {recovered} records are back, exactly as they were.</p>}
-          <Hint>IOMETE keeps every version of a table, so you can travel back in time. The real command is <code className="rounded bg-stone-100 px-1">SELECT * FROM {p.table} VERSION AS OF &lt;snapshot&gt;</code>. <a className="underline" href={TIME_TRAVEL_DOC} target="_blank" rel="noreferrer">See the docs ↗</a></Hint>
+          {recovered > 0 && <p className="rounded-lg bg-emerald-50 p-2 text-emerald-800">Phew. {recovered} records are back, exactly as they were.</p>}
+          <Hint>IOMETE keeps every version of a table, so you can travel back in time. The real command is <code className="rounded bg-stone-100 px-1">SELECT * FROM {p.table} VERSION AS OF &lt;snapshot&gt;</code>. <a className="underline" href={TIME_TRAVEL_DOC} target="_blank" rel="noreferrer">See the docs</a></Hint>
         </>)}
         {active === "deploy" && (<>
           <p>Last one. Where would your organisation want IOMETE to run? Pick the one that fits; all three are supported.</p>
           <div className="space-y-2">
             {DEPLOY_CHOICES.map((d) => (
               <button key={d.id} type="button" onClick={() => onDeploy(d.id)}
-                className={`flex w-full items-center gap-3 rounded-xl p-3 text-left ring-1 transition ${deploy === d.id ? "bg-stone-900 text-white ring-stone-900" : "bg-white ring-stone-300 hover:ring-teal-400"}`}>
-                <span className="text-2xl">{d.emoji}</span>
+                className={`flex w-full items-center gap-3 rounded-lg p-3 text-left ring-1 transition ${deploy === d.id ? "bg-stone-900 text-white ring-stone-900" : "bg-white ring-stone-300 hover:ring-emerald-400"}`}>
                 <span><span className="block font-medium">{d.label}</span><span className={`block text-xs ${deploy === d.id ? "text-white/70" : "text-stone-500"}`}>{d.detail}</span></span>
               </button>
             ))}
@@ -342,8 +341,8 @@ function MissionPanel({ p, active, done, deploy, deleted, recovered, role, onFil
       </div>
 
       <div className="mt-5 flex items-center justify-between gap-2 border-t border-stone-100 pt-4">
-        <a href={m.doc.url} target="_blank" rel="noreferrer" className="text-xs text-stone-500 underline decoration-stone-300 hover:text-stone-800">📘 {m.doc.label} ↗</a>
-        {done[active] && <button type="button" onClick={onNext} className="shrink-0 rounded-full bg-teal-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-teal-500">Next →</button>}
+        <a href={m.doc.url} target="_blank" rel="noreferrer" className="text-xs text-stone-500 underline decoration-stone-300 hover:text-stone-800">Read the docs: {m.doc.label}</a>
+        {done[active] && <button type="button" onClick={onNext} className="shrink-0 rounded-md bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-emerald-500">Next</button>}
       </div>
     </aside>
   );
@@ -351,16 +350,16 @@ function MissionPanel({ p, active, done, deploy, deleted, recovered, role, onFil
 
 function Btn({ children, onClick, variant = "solid" }: { children: React.ReactNode; onClick: () => void; variant?: "solid" | "ghost" | "danger" }) {
   const cls = variant === "solid" ? "bg-stone-900 text-white hover:bg-stone-700" : variant === "danger" ? "bg-rose-600 text-white hover:bg-rose-500" : "bg-white ring-1 ring-stone-300 hover:bg-stone-50";
-  return <button type="button" onClick={onClick} className={`rounded-full px-4 py-2 text-sm font-medium transition ${cls}`}>{children}</button>;
+  return <button type="button" onClick={onClick} className={`rounded-md px-4 py-2 text-sm font-medium transition ${cls}`}>{children}</button>;
 }
 function Hint({ children }: { children: React.ReactNode }) {
-  return <p className="rounded-lg bg-indigo-50 p-3 text-xs leading-relaxed text-indigo-900">💡 {children}</p>;
+  return <p className="border-l-2 border-emerald-700 bg-stone-50 p-3 text-xs leading-relaxed text-stone-700"><span className="font-semibold text-stone-900">In the real product: </span>{children}</p>;
 }
 
 function Results({ result, p, role }: { result: Result | null; p: Persona; role: "full" | "restricted" }) {
-  if (!result) return <div className="rounded-2xl border-2 border-dashed border-stone-200 p-8 text-center text-sm text-stone-400">Results show up here. Try the button in the mission card.</div>;
-  if (result.kind === "error") return <div className="rounded-2xl bg-amber-50 p-4 text-sm text-amber-900 ring-1 ring-amber-200">🤔 {result.message}</div>;
-  if (result.kind === "write") return <div className="rounded-2xl bg-rose-50 p-4 text-sm text-rose-900 ring-1 ring-rose-200">{result.message}</div>;
+  if (!result) return <div className="rounded-lg border-2 border-dashed border-stone-200 p-8 text-center text-sm text-stone-400">Results show up here. Try the button in the mission card.</div>;
+  if (result.kind === "error") return <div className="rounded-lg bg-amber-50 p-4 text-sm text-amber-900 ring-1 ring-amber-200">{result.message}</div>;
+  if (result.kind === "write") return <div className="rounded-lg bg-rose-50 p-4 text-sm text-rose-900 ring-1 ring-rose-200">{result.message}</div>;
   const { columns, rows } = result;
   const isChart = columns.length === 2 && rows.length > 1 && typeof rows[0][columns[1]] === "number";
   const max = isChart ? Math.max(...rows.map((r) => Number(r[columns[1]]) || 0)) : 0;
@@ -369,14 +368,14 @@ function Results({ result, p, role }: { result: Result | null; p: Persona; role:
   return (
     <div className="space-y-4">
       {isChart && (
-        <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
+        <div className="rounded-lg bg-white p-5 border border-stone-200">
           <div className="text-sm font-medium">{p.questionLabel}</div>
           <div className="mt-4 space-y-2">
             {rows.map((r, i) => (
               <div key={i} className="grid grid-cols-[110px_minmax(0,1fr)_80px] items-center gap-3 text-sm">
                 <span className="truncate text-stone-600">{fmt(r[columns[0]])}</span>
                 <div className="h-6 rounded-md bg-stone-100">
-                  <div className={`h-full rounded-md ${i === 0 ? "bg-gradient-to-r from-teal-500 to-indigo-500" : "bg-teal-300"} transition-all duration-700`} style={{ width: `${max ? (Number(r[columns[1]]) / max) * 100 : 0}%` }} />
+                  <div className={`h-full rounded-md ${i === 0 ? "bg-emerald-700" : "bg-emerald-300"} transition-all duration-700`} style={{ width: `${max ? (Number(r[columns[1]]) / max) * 100 : 0}%` }} />
                 </div>
                 <span className="text-right font-mono text-xs tabular-nums">{fmt(r[columns[1]])}</span>
               </div>
@@ -384,22 +383,22 @@ function Results({ result, p, role }: { result: Result | null; p: Persona; role:
           </div>
         </div>
       )}
-      <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-stone-200">
+      <div className="overflow-hidden rounded-lg bg-white border border-stone-200">
         <div className="flex items-center justify-between border-b border-stone-100 px-4 py-2 text-xs text-stone-500">
           <span>{rows.length} row{rows.length === 1 ? "" : "s"}</span>
-          {role === "restricted" && [...sens].some((k) => columns.includes(k)) && <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-indigo-700">🔒 masked for {p.roles.restricted}</span>}
+          {role === "restricted" && [...sens].some((k) => columns.includes(k)) && <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-emerald-700">Masked for {p.roles.restricted}</span>}
         </div>
         <div className="max-h-96 overflow-auto">
           <table className="w-full text-left text-sm">
             <thead className="sticky top-0 bg-stone-50 text-xs uppercase tracking-wider text-stone-500">
-              <tr>{columns.map((c) => <th key={c} className="whitespace-nowrap px-4 py-2 font-medium">{label(c)}{role === "restricted" && sens.has(c) ? " 🔒" : ""}</th>)}</tr>
+              <tr>{columns.map((c) => <th key={c} className="whitespace-nowrap px-4 py-2 font-medium">{label(c)}{role === "restricted" && sens.has(c) ? " (masked)" : ""}</th>)}</tr>
             </thead>
             <tbody>
               {rows.slice(0, 200).map((r, i) => (
                 <tr key={i} className="border-t border-stone-100">
                   {columns.map((c) => {
                     const hidden = role === "restricted" && sens.has(c);
-                    return <td key={c} className={`whitespace-nowrap px-4 py-2 ${hidden ? "font-mono text-indigo-500" : ""}`}>{hidden ? mask(r[c]) : fmt(r[c], c)}</td>;
+                    return <td key={c} className={`whitespace-nowrap px-4 py-2 ${hidden ? "font-mono text-emerald-500" : ""}`}>{hidden ? mask(r[c]) : fmt(r[c], c)}</td>;
                   })}
                 </tr>
               ))}
@@ -413,18 +412,18 @@ function Results({ result, p, role }: { result: Result | null; p: Persona; role:
 
 function History({ snaps, onRestore, highlight, table }: { snaps: Snap[]; onRestore: (s: Snap) => void; highlight: boolean; table: string }) {
   return (
-    <div className={`rounded-2xl bg-white p-4 shadow-sm ring-1 transition ${highlight ? "ring-2 ring-teal-400" : "ring-stone-200"}`}>
+    <div className={`rounded-lg bg-white p-4 shadow-sm ring-1 transition ${highlight ? "ring-2 ring-emerald-400" : "ring-stone-200"}`}>
       <div className="flex items-center justify-between">
-        <div className="text-sm font-medium">⏪ Table history <span className="font-normal text-stone-500">· every change to {table} is kept</span></div>
+        <div className="text-sm font-medium">Table history <span className="font-normal text-stone-500">· every change to {table} is kept</span></div>
       </div>
       <ol className="mt-3 flex gap-2 overflow-x-auto pb-1">
         {snaps.map((s, i) => (
-          <li key={s.v} className={`min-w-[180px] shrink-0 rounded-xl p-3 text-xs ring-1 ${i === snaps.length - 1 ? "bg-teal-50 ring-teal-200" : "bg-stone-50 ring-stone-200"}`}>
-            <div className="font-semibold">Version {s.v} {i === snaps.length - 1 && <span className="font-normal text-teal-700">· current</span>}</div>
+          <li key={s.v} className={`min-w-[180px] shrink-0 rounded-lg p-3 text-xs ring-1 ${i === snaps.length - 1 ? "bg-emerald-50 ring-emerald-200" : "bg-stone-50 ring-stone-200"}`}>
+            <div className="font-semibold">Version {s.v} {i === snaps.length - 1 && <span className="font-normal text-emerald-700">· current</span>}</div>
             <div className="mt-0.5 text-stone-600">{s.label}</div>
             <div className="mt-0.5 text-stone-400">{s.at} · {s.rows.length} rows</div>
             {i !== snaps.length - 1 && (
-              <button type="button" onClick={() => onRestore(s)} className="mt-2 rounded-full bg-stone-900 px-3 py-1 text-[11px] font-medium text-white hover:bg-stone-700">Restore this version</button>
+              <button type="button" onClick={() => onRestore(s)} className="mt-2 rounded-md bg-stone-900 px-3 py-1 text-[11px] font-medium text-white hover:bg-stone-700">Restore this version</button>
             )}
           </li>
         ))}
@@ -437,21 +436,21 @@ function DeployView({ choice, p }: { choice: string | null; p: Persona }) {
   const d = DEPLOY_CHOICES.find((x) => x.id === choice);
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
+      <div className="rounded-lg bg-white p-6 border border-stone-200">
         <div className="grid items-center gap-6 sm:grid-cols-[minmax(0,1fr)_160px]">
-          <div className={`relative rounded-2xl border-2 border-dashed p-6 transition ${d ? "border-teal-500 bg-teal-50/60" : "border-stone-300"}`}>
-            <div className="absolute -top-3 left-4 bg-white px-2 text-xs font-semibold uppercase tracking-wider text-teal-700">Your perimeter {d ? `· ${d.label}` : ""}</div>
+          <div className={`relative rounded-lg border-2 border-dashed p-6 transition ${d ? "border-emerald-500 bg-emerald-50/60" : "border-stone-300"}`}>
+            <div className="absolute -top-3 left-4 bg-white px-2 text-xs font-semibold uppercase tracking-wider text-emerald-700">Your perimeter {d ? `· ${d.label}` : ""}</div>
             <div className="grid grid-cols-3 gap-3 text-center text-sm">
-              <div className="rounded-xl bg-white p-3 shadow-sm"><div className="text-2xl">{p.emoji}</div>Your {p.rowNoun} data</div>
-              <div className="rounded-xl bg-white p-3 shadow-sm"><div className="text-2xl">⛵</div>IOMETE</div>
-              <div className="rounded-xl bg-white p-3 shadow-sm"><div className="text-2xl">👩‍💼</div>Your team</div>
+              <div className="rounded-md border border-stone-200 bg-white p-3 font-medium">Your {p.rowNoun} data</div>
+              <div className="rounded-md border border-emerald-700 bg-white p-3 font-medium text-emerald-800">IOMETE</div>
+              <div className="rounded-md border border-stone-200 bg-white p-3 font-medium">Your team</div>
             </div>
-            <p className="mt-4 text-center text-sm text-stone-600">{d ? "Everything runs here. Data never has to leave." : "Pick an option in the mission card →"}</p>
+            <p className="mt-4 text-center text-sm text-stone-600">{d ? "Everything runs here. Data never has to leave." : "Pick an option in the mission card."}</p>
           </div>
           <div className="text-center text-sm text-stone-400">
-            <div className="text-3xl opacity-50">🌐</div>
+            <div className="mx-auto mb-2 h-10 w-10 rounded-md border border-dashed border-stone-300" />
             Outside world
-            <div className="mt-1 text-xs">{d ? "no data sent out ✋" : ""}</div>
+            <div className="mt-1 text-xs">{d ? "No data sent out" : ""}</div>
           </div>
         </div>
       </div>
